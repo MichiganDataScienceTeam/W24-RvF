@@ -4,9 +4,21 @@ Deepfakes are everywhere now, and like us you're probably wondering ["wow how am
 
 **Skills Learned**: Machine Learning, Deep Learning, Computer Vision, PyTorch, TensorFlow
 
-## Timeline
+## Timeline (Tentative)
 
-Coming Soon 👀
+| Date | Topic | Deliverable / Task |
+| ---- | ----- | ----------- |
+| 2/11/2024 | Introduction + Convolutional Neural Networks | PyTorch CNN Practice |
+| 2/18/2024 | CNN Practice | Simple CNN Classification Competition | 
+| 2/25/2024 | _SPRING BREAK_ ||
+| 3/3/2024 | _SPRING BREAK_ ||
+| 3/10/2024 | Team Assignments + Data Augmentation | Model Development Ideas |
+| 3/17/2024 | Data Augmentation + Model Architecture | Initial `model.py` file |
+| 3/24/2024 | Model Development ||
+| 3/31/2024 | Model Development + Interpretability ||
+| 4/7/2024 | Model Development ||
+| 4/14/2024 | Model Development + Expo Prep | Project Poster |
+| 4/19/2024 | Project Expo 🎉 ||
 
 ## How to use this repo
 
