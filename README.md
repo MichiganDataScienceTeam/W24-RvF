@@ -34,7 +34,7 @@ Follow the steps below to setup the data for this repository locally on your com
    mkdir secrets
    ```
 3. **Create a [Kaggle](https://www.kaggle.com/) account** to download the datasets for this project if you don't have one already.
-4. **Generate an API Key in Kaggle** - click on your profile at the top right, and select Settings. You should see a page similar to the screenshot below. Click on the "Create New Token" button. ![kaggle_screenshot]("./media/kaggle_instructions.png")
+4. **Generate an API Key in Kaggle** - click on your profile at the top right, and select Settings. You should see a page similar to the screenshot below. Click on the "Create New Token" button. ![Screenshot of Kaggle Settings Page with box around button stating "Create New Token"](./media/kaggle_instructions.png)
 5. Download your API Key and save it to the `secrets` folder.
 6. Run the following command to download the dataset and setup the folder structure
    ```bash 
