@@ -1,1 +1,10 @@
-data
+# exclude virtual environment folders
+venv
+env
+
+# exclude folders that contain the data
+ffhq
+fake
+
+# hide secrets 🤐
+**/secrets
