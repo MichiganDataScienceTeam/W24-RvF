@@ -4,7 +4,7 @@ env
 
 # exclude folders that contain the data
 ffhq
-fake
+rvf140k
 
 # hide secrets 🤐
 **/secrets
