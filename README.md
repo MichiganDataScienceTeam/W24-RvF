@@ -59,9 +59,11 @@ If your setup succeeded, your directory should resemble the structure seen below
 │       └── ... // all the dataset content
 ├── media
 │   └── ... // screenshots
+├── notebooks
+│   └── ... // notebooks that we will use throughout the project
+├── requirements.txt
 └── secrets
     └── kaggle.json
-
 ```
 
 
