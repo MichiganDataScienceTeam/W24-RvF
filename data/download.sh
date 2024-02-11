@@ -20,7 +20,9 @@ function clean() {
 echo "WARNING: Your Python virtual environment should be enabled while running this script!"
 echo "Current Python Environment: $(which python)"
 
-export KAGGLE_CONFIG_DIR=secrets
+if [ -z "${KAGGLE_CONFIG_DIR}" ]; then
+    export KAGGLE_CONFIG_DIR=secrets
+fi
 
 if [ -d "$KAGGLE_CONFIG_DIR/kaggle.json" ]; then
     echo "ERROR: Cannot find kaggle.json in $KAGGLE_CONFIG_DIR"
