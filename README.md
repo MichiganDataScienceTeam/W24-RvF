@@ -20,6 +20,12 @@ Deepfakes are everywhere now, and like us you're probably wondering ["wow how am
 | 4/14/2024 | Model Development + Expo Prep | Project Poster |
 | 4/19/2024 | Project Expo 🎉 ||
 
+## Setup (Colab)
+The preferred method for loading the dataset and writing the model implementation for this project will be via Google Colab. Click the button below to follow the quickstart for loading the dataset in Google Colab.
+
+<a target="_blank" href="https://colab.research.google.com/github/MichiganDataScienceTeam/W24-RvF/blob/main/notebooks/colab_image.ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
 
 ## Setup (Local)
 Follow the steps below to setup the data for this repository locally on your computer (or a cloud computer)
