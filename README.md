@@ -61,6 +61,7 @@ If your setup succeeded, your directory should resemble the structure seen below
 │   └── ... // screenshots
 └── secrets
     └── kaggle.json
+
 ```
 
 

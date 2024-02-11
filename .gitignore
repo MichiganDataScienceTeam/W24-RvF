@@ -5,6 +5,7 @@ env
 # exclude folders that contain the data
 ffhq
 rvf140k
+private
 
 # hide secrets 🤐
 **/secrets
