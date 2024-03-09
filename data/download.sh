@@ -1,20 +1,41 @@
 #!/bin/sh
 
-DATASET_NAME="rvf140k"
+if [ $1 == "rvf10k" ]
+then
+    DATASET_NAME="rvf10k"
+    DATASET_OWNER="sachchitkunichetty"
+    DATASET_ID="rvf10k"
+elif [ $1 == "rvf140k" ]
+then
+    DATASET_NAME="rvf140k"
+    DATASET_OWNER="xhlulu"
+    DATASET_ID="140k-real-and-fake-faces"
+else
+    echo "ERROR: Invalid dataset name: \"$1\". Expected either \"rvf10k\" or \"rvf140k\""
+    exit 1
+fi
 
 function download () {
     echo "Downloading $DATASET_NAME to data/$DATASET_NAME"
-    kaggle datasets download -d xhlulu/140k-real-and-fake-faces -p data/$DATASET_NAME
+    kaggle datasets download -d $DATASET_OWNER/$DATASET_ID -p data/$DATASET_NAME
    
 }
 
 function clean () {
-    mv data/$DATASET_NAME/real_vs_fake/real-vs-fake/train data/$DATASET_NAME/train
-    mv data/$DATASET_NAME/real_vs_fake/real-vs-fake/valid data/$DATASET_NAME/valid
-    mv data/$DATASET_NAME/real_vs_fake/real-vs-fake/test data/$DATASET_NAME/test
+    if [ $DATASET_NAME == "rvf10k" ]
+    then
+        mv data/$DATASET_NAME/rvf10k/train data/$DATASET_NAME/train
+        mv data/$DATASET_NAME/rvf10k/valid data/$DATASET_NAME/valid
+        
+        rmdir data/$DATASET_NAME/rvf10k
+    else [ $DATASET_NAME == "rvf140k" ]
+        mv data/$DATASET_NAME/real_vs_fake/real-vs-fake/train data/$DATASET_NAME/train
+        mv data/$DATASET_NAME/real_vs_fake/real-vs-fake/valid data/$DATASET_NAME/valid
+        mv data/$DATASET_NAME/real_vs_fake/real-vs-fake/test data/$DATASET_NAME/test
 
-    rmdir data/$DATASET_NAME/real_vs_fake/real-vs-fake
-    rmdir data/$DATASET_NAME/real_vs_fake
+        rmdir data/$DATASET_NAME/real_vs_fake/real-vs-fake
+        rmdir data/$DATASET_NAME/real_vs_fake
+    fi
 }
 
 echo "CRITICAL: Your Python virtual environment enabled while running this script!"
@@ -52,16 +73,16 @@ then
     download
 
     echo "Extracting $DATASET_NAME - this may take some time!"
-    unzip data/$DATASET_NAME/140k-real-and-fake-faces.zip -d data/$DATASET_NAME
+    unzip data/$DATASET_NAME/$DATASET_ID.zip -d data/$DATASET_NAME
 
     clean
-elif [ $count = "1" ] && [ -f data/$DATASET_NAME/140k-real-and-fake-faces.zip ]
+elif [ $count = "1" ] && [ -f data/$DATASET_NAME/$DATASET_ID.zip ]
 then
     echo "Extracting $DATASET_NAME - this may take some time!"
-    unzip data/$DATASET_NAME/140k-real-and-fake-faces.zip -d data/$DATASET_NAME
+    unzip data/$DATASET_NAME/$DATASET_ID.zip -d data/$DATASET_NAME
 
     clean
-elif [ -d data/$DATASET_NAME/real_vs_fake ]
+elif [ -d data/$DATASET_NAME/real_vs_fake ] || [ -d data/$DATASET_NAME/rvf10k  ]
 then
     clean
 else
