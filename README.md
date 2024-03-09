@@ -20,14 +20,52 @@ Deepfakes are everywhere now, and like us you're probably wondering ["wow how am
 | 4/14/2024 | Model Development + Expo Prep | Project Poster |
 | 4/19/2024 | Project Expo 🎉 ||
 
-## How to use this repo
+## Setup (Colab)
+The preferred method for loading the dataset and writing the model implementation for this project will be via Google Colab. Click the button below to follow the quickstart for loading the dataset in Google Colab.
 
-This repo is the homebase for this project, originally run in the Winter 2024 semester by MDST. Below is our folder structure for this project:
+<a target="_blank" href="https://colab.research.google.com/github/MichiganDataScienceTeam/W24-RvF/blob/main/notebooks/colab_image.ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
 
+## Setup (Local)
+Follow the steps below to setup the data for this repository locally on your computer (or a cloud computer)
+1. **Create a virtual environment**. This project assumes you have Python 3.9 or later.
+   ```bash
+   python3 -m venv env
+   source env/bin/activate
+   pip install -r requirements.txt
+   ```
+2. **Add the `secrets` folder in the root directory**
+   ```bash
+   mkdir secrets
+   ```
+3. **Create a [Kaggle](https://www.kaggle.com/) account** to download the datasets for this project if you don't have one already.
+4. **Generate an API Key in Kaggle** - click on your profile at the top right, and select Settings. You should see a page similar to the screenshot below. Click on the "Create New Token" button. ![Screenshot of Kaggle Settings Page with box around button stating "Create New Token"](./media/kaggle_instructions.png)
+5. Download your API Key and save it to the `secrets` folder.
+6. Run the following command to download the dataset and setup the folder structure
+   ```bash 
+   ./data/download.sh
+   ```
+   You may see a warning regarding your environment like below. This is fine as long as you ran the previous steps correctly and your Python virtual environment was enabled correctly.
+   > `WARNING: Your Python virtual environment should be enabled while running this script!`
+
+If your setup succeeded, your directory should resemble the structure seen below.
 ```
 .
-└── README.md
+├── README.md
+├── data
+│   ├── download.sh
+│   └── rvf140k
+│       └── ... // all the dataset content
+├── media
+│   └── ... // screenshots
+├── notebooks
+│   └── ... // notebooks that we will use throughout the project
+├── requirements.txt
+└── secrets
+    └── kaggle.json
 ```
+
 
 ## Other Resources
 - **PyTorch Documentation** - [https://pytorch.org/docs/stable/index.html](https://pytorch.org/docs/stable/index.html)
@@ -36,5 +74,3 @@ This repo is the homebase for this project, originally run in the Winter 2024 se
 - **Example CNN** - [https://www.kaggle.com/code/akassshhhh/challenging-fake-image-detection](https://www.kaggle.com/code/akassshhhh/challenging-fake-image-detection)
 - **RvF - CNN Crash Course (UMich Only)** - https://docs.google.com/presentation/d/1R6YwVkn8a_pYOykxGSW1JDuewv_IK8L86jrh2-XL0Cc/edit?usp=sharing
 - **All About Convolutional Neural Networks** - [https://cs231n.github.io/convolutional-networks/](https://cs231n.github.io/convolutional-networks/)
-
-**Fun fact!** One of the instructors who helped contribute to the latter two resources used to teach at U-M (they taught EECS 442 + some upper level special topics classes)!

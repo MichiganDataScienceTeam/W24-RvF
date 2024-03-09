@@ -6,6 +6,7 @@ env
 ffhq
 rvf140k
 rvf10k
+private
 
 # hide secrets 🤐
 **/secrets
