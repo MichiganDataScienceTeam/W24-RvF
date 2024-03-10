@@ -30,12 +30,12 @@ def save_model(
         model (torch.nn.Module): The model to be saved.
         checkpoint_dir (Path): The directory to save the model to.
     """
-    checkpoint_dir = Path(checkpoint_dir)
+    checkpoint_dir = Path(checkpoint_dir) / model.__class__.__name__
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
     torch.save(
         model.state_dict(),
-        checkpoint_dir / model.__class__.__name__ / f"model_{epoch}.pt",
+        checkpoint_dir / f"model_{epoch}.pt",
     )
 
 

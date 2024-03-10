@@ -57,7 +57,7 @@ class RvFDataset(torch.utils.data.Dataset):
 
 def get_loaders(
     batch_size: int = 32,
-    num_workers: int = None,
+    preprocessor: Callable[[npt.ArrayLike], torch.Tensor] = preprocess,
     pin_memory: bool = False,
     data_directory: Union[str, Path] = "data/rvf10k",
 ) -> tuple[torch.utils.data.DataLoader, torch.utils.data.DataLoader]:
@@ -75,18 +75,16 @@ def get_loaders(
         tuple[torch.utils.data.DataLoader, torch.utils.data.DataLoader]: The DataLoader objects for the training and validation sets.
     """
     train_loader = torch.utils.data.DataLoader(
-        RvFDataset("train", data_directory, preprocess),
+        RvFDataset("train", data_directory, preprocessor),
         batch_size=batch_size,
         shuffle=True,
-        num_workers=num_workers,
         pin_memory=pin_memory,
     )
 
     val_loader = torch.utils.data.DataLoader(
-        RvFDataset("val", data_directory, preprocess),
+        RvFDataset("valid", data_directory, preprocessor),
         batch_size=batch_size,
         shuffle=False,
-        num_workers=num_workers,
         pin_memory=pin_memory,
     )
 
