@@ -11,23 +11,7 @@ import torch
 import numpy.typing as npt
 import torchvision
 import imageio.v3 as iio
-
-
-def preprocess(image: npt.ArrayLike) -> torch.Tensor:
-    """
-    Preprocesses an image by applying a series of transformation.
-
-    Args:
-        image (npt.ArrayLike): The input image to be preprocessed.
-
-    Returns:
-        torch.Tensor: The preprocessed image as a tensor.
-    """
-    # Convert image to tensor
-    tensor = torch.tensor(image, dtype=torch.float32)
-
-    # TODO: Edit this function to more preprocessing steps to improve model performance.
-    return tensor
+import torchvision.transforms.v2 as v2
 
 
 class RvFDataset(torch.utils.data.Dataset):
@@ -53,6 +37,37 @@ class RvFDataset(torch.utils.data.Dataset):
         path = self.data_directory / image_metadata["path"]
         image = self.preprocessor(iio.imread(path))
         return image, image_metadata["label"]
+
+train_dataset = RvFDataset("train", data_directory="data/rvf10k")
+tensor_converter = v2.Compose([ # Step 0: Convert from PIL Image to Torch Tensor
+  v2.ToImage(),
+  v2.ToDtype(torch.float32, scale=True)
+])
+mean = torch.zeros((3,))
+variance = torch.zeros((3,))
+
+for image, _ in train_dataset:
+  mean += tensor_converter(image).mean(dim=(1, 2))
+mean /= len(train_dataset)
+
+for image, _ in train_dataset:
+  image = tensor_converter(image)
+  variance += ((image - mean.view(3, 1, 1))**2).mean(dim=(1,2))
+std = torch.sqrt(variance / len(train_dataset))
+
+standardized_image = image / 255
+normalizer = v2.Normalize(mean, std)
+cropper = v2.RandomCrop(size=(224, 224))
+blurrer = v2.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5.))
+jitter = v2.ColorJitter(brightness=.5, hue=.3)
+
+preprocess = v2.Compose([
+  tensor_converter,
+  normalizer,
+  cropper,
+  blurrer,
+  jitter
+])
 
 
 def get_loaders(
