@@ -9,7 +9,8 @@ from typing import Union, Callable
 import pandas as pd
 import torch
 import numpy.typing as npt
-import torchvision
+import torchvision.transforms as transforms
+import numpy as np
 import imageio.v3 as iio
 
 
@@ -25,9 +26,23 @@ def preprocess(image: npt.ArrayLike) -> torch.Tensor:
     """
     # Convert image to tensor
     tensor = torch.tensor(image, dtype=torch.float32)
-
-    # TODO: Edit this function to more preprocessing steps to improve model performance.
-    return tensor
+    preprocess_transforms = transforms.Compose([
+    transforms.ToPILImage(),                # Convert array to PIL Image
+    transforms.RandomCrop(size=(224, 224)), # Random crop to 224 x 224
+    transforms.ColorJitter(),               # Random jitter
+    transforms.RandomApply([                # Optional Gaussian blur
+        transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5))],
+        p=0.1),                             # Apply with probability 0.1
+    transforms.RandomHorizontalFlip(),      # Random horizontal flip
+    transforms.RandomVerticalFlip(),        # Random vertical flip
+    transforms.ToTensor(),                  # Convert PIL Image to tensor
+    transforms.Normalize(                   # Standardize and normalize the image
+        mean=[0.485, 0.456, 0.406],        # ImageNet mean
+        std=[0.229, 0.224, 0.225]          # ImageNet std
+    ),
+    ])
+    preprocessed_tensor = preprocess_transforms(tensor)
+    return preprocessed_tensor
 
 
 class RvFDataset(torch.utils.data.Dataset):
