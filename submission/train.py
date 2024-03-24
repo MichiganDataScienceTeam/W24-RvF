@@ -88,13 +88,14 @@ def evaluate(
 
 
 def train_model(
-    model: torch.nn.Module,
     criterion: Callable,
     optimizer: torch.optim.Optimizer,
     train_loader: DataLoader,
     test_loader: DataLoader,
     epochs: int = 10,
     save_checkpoint: bool = True,
+    model_name: str = 'efficientnet_b1',  # added model_name parameter to choose different models
+    num_classes: int = 2,  # the number of classes, assuming binary classification for real vs fake
 ) -> dict[str, list[float]]:
     """
     Train a given model using the specified criterion, optimizer, and data loaders.
@@ -113,6 +114,8 @@ def train_model(
     train_losses, train_accuracies = [], []
     test_losses, test_accuracies = [], []
 
+    model = getattr(models, model_name)(pretrained=True)
+    model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, num_classes)
     model = model.to(device)
 
     for epoch in range(epochs):
