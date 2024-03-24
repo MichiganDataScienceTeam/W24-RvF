@@ -1,9 +1,3 @@
-"""
-MDST Real vs Fake Face Detection Project - Winter 2024
-
-train.py - Utilities for training and evaluating a model.
-"""
-
 from pathlib import Path
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -78,9 +72,14 @@ def evaluate(
         correct, total = 0, 0
         loss = 0.0
         for X, y in loader:
-            outputs = model(X.to(device)).to("cpu")
-            loss += criterion(outputs, y).detach().sum().item()
-            _, predicted = torch.max(outputs.data, 1)  # get predicted digit
+            outputs = model(X.to(device))
+            if isinstance(outputs, ImageClassifierOutputWithNoAttention):
+                logits = outputs.logits
+            else:
+                logits = outputs
+            loss += criterion(logits, y.to(device)).detach().sum().item()
+            _, predicted = torch.max(logits.data, 1)  # get predicted digit
+            y = y.to(device)  # move y to the same device as predicted
             total += len(y)
             correct += (predicted == y).sum().item()
     model.train()
@@ -121,7 +120,11 @@ def train_model(
         for X, y in tqdm(train_loader):
             optimizer.zero_grad()
             outputs = model(X.to(device))
-            loss = criterion(outputs, y.to(device))
+            if isinstance(outputs, ImageClassifierOutputWithNoAttention):
+                logits = outputs.logits
+            else:
+                logits = outputs
+            loss = criterion(logits, y.to(device))
             loss.backward()
             optimizer.step()
 
@@ -151,27 +154,3 @@ def train_model(
             "test": test_accuracies,
         },
     }
-
-
-def plot_performance(history: dict[str, dict[str, list[float]]]) -> mpl.figure.Figure:
-    """
-    Plots the performance of a model during training and testing.
-
-    Args:
-        history (dict[str, dict[str, list[float]]]): A dictionary containing the performance history of the model.
-            The keys of the dictionary represent the metrics, and the values are dictionaries containing the
-            training and testing values for each metric.
-
-    Returns:
-        mpl.figure.Figure: The matplotlib figure object containing the performance plot.
-    """
-    fig, axes = plt.subplots(len(history), 1, figsize=(15, 5))
-    for i, (metric, values) in enumerate(history.items()):
-        train, test = values["train"], values["test"]
-        axes[i].plot(train, label="train")
-        axes[i].plot(test, label="test")
-        axes[i].set_title(f"{metric}")
-        axes[i].set_xlabel("Epoch")
-        axes[i].set_ylabel(metric)
-        axes[i].legend()
-    return fig
