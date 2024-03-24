@@ -11,7 +11,23 @@ import torch
 import numpy.typing as npt
 import torchvision
 import imageio.v3 as iio
+import cv2
+import torchvision.transforms.v2 as v2
 
+train_dataset = RvFDataset("train", data_directory = "data/rvf5k")
+
+mean = torch.zeros((3,))
+variance = torch.zeros((3,))
+tensor_converter = v2.ToTensor()
+
+for image, _ in train_dataset:
+    mean += tensor_converter(image).mean(dim=(1, 2))
+    mean /= len(train_dataset)
+for image, _ in train_dataset:
+    image = tensor_converter(image)
+    variance += ((image - mean.view(3, 1, 1))**2).mean(dim=(1,2))
+
+std = torch.sqrt(variance / len(train_dataset))
 
 def preprocess(image: npt.ArrayLike) -> torch.Tensor:
     """
@@ -24,7 +40,12 @@ def preprocess(image: npt.ArrayLike) -> torch.Tensor:
         torch.Tensor: The preprocessed image as a tensor.
     """
     # Convert image to tensor
-    tensor = torch.tensor(image, dtype=torch.float32)
+    tensor = torch.tensor(image, dtype = torch.float32).permute(2, 0, 1)
+    tight = torch.from_numpy(cv2.Canny(image, 118, 128)).view(1, 256, 256) # Edge.
+    tensor = v2.Normalize(mean = mean, std = std)(tensor)
+    tensor =  v2.ColorJitter(brightness=.5, hue=.3)(tensor) # Color.
+    tensor = v2.GaussianBlur(kernel_size = (5, 9), sigma = (0.1, 5.))(tensor) # Blur.
+    tensor = torch.dstack([tensor.permute(1, 2, 0), tight.permute(1, 2, 0)]).permute(2, 0, 1)
 
     # TODO: Edit this function to more preprocessing steps to improve model performance.
     return tensor
