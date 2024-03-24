@@ -5,13 +5,18 @@ then
     DATASET_NAME="rvf10k"
     DATASET_OWNER="sachchitkunichetty"
     DATASET_ID="rvf10k"
+elif [ $1 == "rvf5k" ]
+then
+    DATASET_NAME="rvf5k"
+    DATASET_OWNER="sachchitkunichetty"
+    DATASET_ID="rvf5000"
 elif [ $1 == "rvf140k" ]
 then
     DATASET_NAME="rvf140k"
     DATASET_OWNER="xhlulu"
     DATASET_ID="140k-real-and-fake-faces"
 else
-    echo "ERROR: Invalid dataset name: \"$1\". Expected either \"rvf10k\" or \"rvf140k\""
+    echo "ERROR: Invalid dataset name: \"$1\". Expected either \"rvf5k\", \"rvf10k\" or \"rvf140k\""
     exit 1
 fi
 
@@ -22,7 +27,13 @@ function download() {
 }
 
 function clean () {
-    if [ $DATASET_NAME == "rvf10k" ]
+    if [ $DATASET_NAME == "rvf5k" ]
+    then
+        mv data/$DATASET_NAME/rvf5k/train data/$DATASET_NAME/train
+        mv data/$DATASET_NAME/rvf5k/valid data/$DATASET_NAME/valid
+        
+        rmdir data/$DATASET_NAME/rvf5k
+    elif [ $DATASET_NAME == "rvf10k" ]
     then
         mv data/$DATASET_NAME/rvf10k/train data/$DATASET_NAME/train
         mv data/$DATASET_NAME/rvf10k/valid data/$DATASET_NAME/valid
@@ -71,15 +82,13 @@ if ! [ -d data/$DATASET_NAME ] || [ $count = "0" ]; then
 
     echo "Extracting $DATASET_NAME - this may take some time!"
     unzip data/$DATASET_NAME/$DATASET_ID.zip -d data/$DATASET_NAME
-
     clean
 elif [ $count = "1" ] && [ -f data/$DATASET_NAME/$DATASET_ID.zip ]
 then
     echo "Extracting $DATASET_NAME - this may take some time!"
     unzip data/$DATASET_NAME/$DATASET_ID.zip -d data/$DATASET_NAME
-
     clean
-elif [ -d data/$DATASET_NAME/real_vs_fake ] || [ -d data/$DATASET_NAME/rvf10k  ]
+elif [ -d data/$DATASET_NAME/real_vs_fake ] || [ -d data/$DATASET_NAME/rvf10k  ] || [ -d data/$DATASET_NAME/rvf5k ]
 then
     clean
 else
