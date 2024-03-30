@@ -18,7 +18,7 @@ criterion = torch.nn.CrossEntropyLoss()
 num_trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
 total_params = sum(p.numel() for p in model.parameters())
 
-history = train_model(model, criterion, optimizer, train_loader, val_loader, epochs=35)
+history = train_model(model, criterion, optimizer, train_loader, val_loader, epochs=1)
 plot_performance(history)
 
 # Unfreeze some feature layers and train on lower learning rate
@@ -36,5 +36,5 @@ weight_decay = 1e-6
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-4, weight_decay=weight_decay)
 criterion = torch.nn.CrossEntropyLoss()
 
-history = train_model(model, criterion, optimizer, train_loader, val_loader, epochs=20)
+history = train_model(model, criterion, optimizer, train_loader, val_loader, epochs=10)
 plot_performance(history)
