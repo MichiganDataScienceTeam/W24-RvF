@@ -20,7 +20,6 @@ def preprocess(image: npt.ArrayLike) -> torch.Tensor:
     custom_transforms = transforms.Compose([
         transforms.RandomHorizontalFlip(p=0.5),  # horizontal flip
         transforms.RandomRotation(degrees=0.2),
-        transforms.GaussianBlur(kernel_size=3),
         transforms.Lambda(lambda x: x.permute(2, 0, 1)),  # Permute to (3, 224, 224)
         transforms.Resize((224, 224)),  # Resize image to (224, 224)
         transforms.Normalize(mean=mean, std=std), 
