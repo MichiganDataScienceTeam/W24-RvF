@@ -1,22 +1,30 @@
 import torch
 import torchvision.models as models
+import torch.nn as nn
+from efficientnet_pytorch import EfficientNet
 
 class Model(torch.nn.Module):
     def __init__(self):
         super(Model, self).__init__()
 
-        self.source_model = models.vit_h_14(weights=models.ViT_H_14_Weights.DEFAULT)
+        source_model = EfficientNet.from_pretrained('efficientnet-b7')
 
-        for name, param in self.source_model.named_parameters():
-            if "head" not in name:
-                param.requires_grad = False
-            else:
-                print(f"Unfrozen layer: {name}")
-                param.requires_grad = True
-
-        self.source_model.head = torch.nn.Sequential(
-            torch.nn.Linear(1280, 2, bias=True)
+        source_model._fc = nn.Sequential(
+            nn.Linear(2560, 1024),
+            nn.ReLU(),
+            nn.Dropout(0.5),
+            nn.Linear(1024, 246),
+            nn.ReLU(),
+            nn.Dropout(0.5),
+            nn.Linear(256, 2)
         )
+
+        for param in source_model.parameters():
+          param.requires_grad = True
+        for param in list(source_model.parameters())[:-20]:
+          param.requires_grad = False
+
+        self.source_model = source_model
 
     def forward(self, x):
         x = self.source_model(x)
