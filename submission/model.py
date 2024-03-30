@@ -21,7 +21,7 @@ class Model(torch.nn.Module):
 
         for param in source_model.parameters():
           param.requires_grad = True
-        for param in list(source_model.parameters())[:-30]:
+        for param in list(source_model.parameters())[:-200]:
           param.requires_grad = False
 
         self.source_model = source_model
