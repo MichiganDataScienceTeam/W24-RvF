@@ -9,7 +9,7 @@ model = Model()
 learning_rate = 6e-4
 weight_decay = 0.01
 optimizer = torch.optim.AdamW(params= model.parameters(), lr=learning_rate, weight_decay=weight_decay) # TODO: Change the optimizer to explore different options
-criterion = torch.nn.BCEWithLogitsLoss() # TODO: Change the criterion to explore different options
+criterion = torch.nn.CrossEntropyLoss() # TODO: Change the criterion to explore different options
 
 history = train_model(model, criterion, optimizer, train_loader, val_loader, epochs=10)
 plot_performance(history)
