@@ -21,7 +21,7 @@ total_params = sum(p.numel() for p in model.parameters())
 history = train_model(model, criterion, optimizer, train_loader, val_loader, epochs=30)
 plot_performance(history)
 
-# Unfreeze some feature layers
+# Unfreeze some feature layers and train on lower learning rate
 
 for name, param in model.named_parameters():
     if '_blocks.15' in name and 'bn' not in name:
