@@ -15,9 +15,6 @@ for name, param in model.named_parameters():
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-2)
 criterion = torch.nn.CrossEntropyLoss()
 
-num_trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-total_params = sum(p.numel() for p in model.parameters())
-
 history = train_model(model, criterion, optimizer, train_loader, val_loader, epochs=1)
 plot_performance(history)
 
@@ -29,8 +26,7 @@ for name, param in model.named_parameters():
       
 model.source_model._conv_head.weight.requires_grad = True
     
-num_trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-total_params = sum(p.numel() for p in model.parameters())
+train_loader, val_loader = get_loaders(preprocessor=preprocess2)
 
 weight_decay = 1e-6
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-4, weight_decay=weight_decay)
