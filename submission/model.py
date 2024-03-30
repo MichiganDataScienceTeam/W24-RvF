@@ -13,7 +13,7 @@ class Model(torch.nn.Module):
             nn.Linear(2560, 1024),
             nn.ReLU(),
             nn.Dropout(0.5),
-            nn.Linear(1024, 246),
+            nn.Linear(1024, 256),
             nn.ReLU(),
             nn.Dropout(0.5),
             nn.Linear(256, 2)
