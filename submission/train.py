@@ -32,5 +32,5 @@ weight_decay = 1e-6
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-4, weight_decay=weight_decay)
 criterion = torch.nn.CrossEntropyLoss()
 
-history = train_model(model, criterion, optimizer, train_loader, val_loader, epochs=20)
+history = train_model(model, criterion, optimizer, train_loader, val_loader, epochs=30)
 plot_performance(history)
