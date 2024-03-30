@@ -52,10 +52,11 @@ def preprocess2(image: npt.ArrayLike) -> torch.Tensor:
         transforms.RandomHorizontalFlip(p=0.5),  # horizontal flip
         transforms.RandomRotation(degrees=0.2),
         transforms.GaussianBlur(kernel_size=3),
-        transforms.RandomAffine(degrees=0, shear=(-20, 20)),  # shear range of -20 to 20 degrees
         transforms.RandomAffine(degrees=0, scale=(0.8, 1.2)),  # zoom range of 0.8 to 1.2
         transforms.RandomAffine(degrees=0, translate=(0.2, 0.2)),  # shift range of 20% of image size
         transforms.Lambda(lambda x: x.permute(2, 0, 1)),  # Permute to (3, 224, 224)
+        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+        transforms.RandomGrayscale(p=0.5)
         transforms.Resize((224, 224)),  # Resize image to (224, 224)
         transforms.Normalize(mean=mean, std=std), 
     ])
