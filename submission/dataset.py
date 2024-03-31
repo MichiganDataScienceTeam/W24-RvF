@@ -13,21 +13,27 @@ import torchvision
 import imageio.v3 as iio
 
 
-def preprocess(image: npt.ArrayLike) -> torch.Tensor:
-    """
-    Preprocesses an image by applying a series of transformation.
+def preprocess(image) -> torch.Tensor:
+  """
+  Preprocesses an image by applying a series of transformation.
 
-    Args:
-        image (npt.ArrayLike): The input image to be preprocessed.
+  Args:
+      image (npt.ArrayLike): The input image to be preprocessed.
 
-    Returns:
-        torch.Tensor: The preprocessed image as a tensor.
-    """
-    # Convert image to tensor
-    tensor = torch.tensor(image, dtype=torch.float32)
+  Returns:
+      torch.Tensor: The preprocessed image as a tensor.
+  """
+  tensor_converter = v2.Compose([ # Step 0: Convert from PIL Image to Torch Tensor
+    v2.ToImage(),
+    v2.ToDtype(torch.float32, scale=True)
+  ])
+  normalizer = v2.Normalize(mean=mean, std=std)
 
-    # TODO: Edit this function to more preprocessing steps to improve model performance.
-    return tensor
+  preprocessor = v2.Compose([
+    tensor_converter,
+    normalizer,
+  ])
+  return preprocessor(image)
 
 
 class RvFDataset(torch.utils.data.Dataset):
