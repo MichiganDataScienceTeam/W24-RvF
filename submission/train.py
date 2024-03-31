@@ -18,7 +18,7 @@ plot_performance(history)
 # Unfreeze some feature layers
 
 for name, param in model.named_parameters():
-    if '_blocks.25' in name and 'bn' not in name:
+    if '_blocks.22' in name and 'bn' not in name:
         param.requires_grad = True
 
 model.source_model._conv_head.weight.requires_grad = True
