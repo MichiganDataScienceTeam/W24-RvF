@@ -28,7 +28,7 @@ total_params = sum(p.numel() for p in model.parameters())
 
 train_loader, val_loader = get_loaders(preprocessor=preprocess2)
 
-weight_decay = 1e-6
+weight_decay = 2e-6
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-4, weight_decay=weight_decay)
 criterion = torch.nn.CrossEntropyLoss()
 
