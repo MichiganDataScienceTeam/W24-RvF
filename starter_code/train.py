@@ -43,18 +43,33 @@ def load_model(
     model: torch.nn.Module,
     checkpoint_dir: Union[str, Path],
     epoch: int,
+    map_location: str = "cpu",
 ):
     """
     Load the model from a file.
 
     Args:
         model (torch.nn.Module): The model to be loaded.
-        checkpoint_dir (Path): The directory to load the model from.
+        checkpoint_dir (Union[str, Path]): The directory to load the model from.
         epoch (int): The epoch number of the model to load.
+        map_location (str, optional): The device to load the model on. Defaults to "cpu".
+
+    Raises:
+        FileNotFoundError: If the specified model file does not exist.
+
+    Returns:
+        None
     """
     checkpoint_dir = Path(checkpoint_dir)
+    model_file = checkpoint_dir / model.__class__.__name__ / f"model_{epoch}.pt"
+
+    if not model_file.exists():
+        raise FileNotFoundError(
+            f"Model at epoch {epoch} in directory {str(model_file.parent())} does not exist."
+        )
+
     model.load_state_dict(
-        torch.load(checkpoint_dir / model.__class__.__name__ / f"model_{epoch}.pt")
+        torch.load(model_file, map_location=torch.device(map_location))
     )
 
 
