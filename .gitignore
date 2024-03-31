@@ -10,3 +10,6 @@ private
 
 # hide secrets 🤐
 **/secrets
+
+# exclude other files
+.DS_Store
