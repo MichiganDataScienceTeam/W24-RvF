@@ -12,30 +12,6 @@ import numpy.typing as npt
 import torchvision
 import imageio.v3 as iio
 
-
-def preprocess(image) -> torch.Tensor:
-  """
-  Preprocesses an image by applying a series of transformation.
-
-  Args:
-      image (npt.ArrayLike): The input image to be preprocessed.
-
-  Returns:
-      torch.Tensor: The preprocessed image as a tensor.
-  """
-  tensor_converter = v2.Compose([ # Step 0: Convert from PIL Image to Torch Tensor
-    v2.ToImage(),
-    v2.ToDtype(torch.float32, scale=True)
-  ])
-  normalizer = v2.Normalize(mean=mean, std=std)
-
-  preprocessor = v2.Compose([
-    tensor_converter,
-    normalizer,
-  ])
-  return preprocessor(image)
-
-
 class RvFDataset(torch.utils.data.Dataset):
     def __init__(
         self,
@@ -60,6 +36,41 @@ class RvFDataset(torch.utils.data.Dataset):
         image = self.preprocessor(iio.imread(path))
         return image, image_metadata["label"]
 
+mean = torch.zeros((3,))
+variance = torch.zeros((3,))
+tensor_converter = v2.ToTensor()
+train_dataset = RvFDataset("train", "data/rvf140k")
+
+for image, _ in train_dataset:
+  mean += tensor_converter(image).mean(dim=(1, 2))
+mean /= len(train_dataset)
+
+for image, _ in train_dataset:
+  image = tensor_converter(image)
+  variance += ((image - mean.view(3, 1, 1))**2).mean(dim=(1, 2))
+std = torch.sqrt(variance/len(train_dataset))
+
+def preprocess(image) -> torch.Tensor:
+  """
+  Preprocesses an image by applying a series of transformation.
+
+  Args:
+      image (npt.ArrayLike): The input image to be preprocessed.
+
+  Returns:
+      torch.Tensor: The preprocessed image as a tensor.
+  """
+  tensor_converter = v2.Compose([ # Step 0: Convert from PIL Image to Torch Tensor
+    v2.ToImage(),
+    v2.ToDtype(torch.float32, scale=True)
+  ])
+  normalizer = v2.Normalize(mean=mean, std=std)
+
+  preprocessor = v2.Compose([
+    tensor_converter,
+    normalizer,
+  ])
+  return preprocessor(image)
 
 def get_loaders(
     batch_size: int = 32,
