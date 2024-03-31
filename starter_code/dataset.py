@@ -34,7 +34,7 @@ class RvFDataset(torch.utils.data.Dataset):
     def __init__(
         self,
         split: str = "train",
-        data_directory: Union[str, Path] = "data/rvf10k",
+        data_directory: Union[str, Path] = "data/rvf5k",
         preprocessor: Callable[[npt.ArrayLike], torch.Tensor] = None,
     ):
         self.data_directory = Path(data_directory)
@@ -59,7 +59,7 @@ def get_loaders(
     batch_size: int = 32,
     preprocessor: Callable[[npt.ArrayLike], torch.Tensor] = preprocess,
     pin_memory: bool = False,
-    data_directory: Union[str, Path] = "data/rvf10k",
+    data_directory: Union[str, Path] = "data/rvf5k",
 ) -> tuple[torch.utils.data.DataLoader, torch.utils.data.DataLoader]:
     """
     Returns the DataLoader objects for the training and validation sets.
