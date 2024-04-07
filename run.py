@@ -4,14 +4,14 @@ from submission.model import Model
 import torch
 import os
 
-# TODO: To test locally, change dataset from `data/rvk140k` to whichever dataset you use locally 
+# TODO: To test locally, change dataset from `data/rvk140k` to whichever dataset you use locally
 train_loader, val_loader = get_loaders(data_directory="data/rvf140k")
 
 model = Model()
 optimizer = torch.optim.Adam(model.parameters(), lr=5e-3)
 criterion = torch.nn.CrossEntropyLoss()
 
-checkpoint_dir = f"checkpoints_{os.getenv("SLURM_JOB_ID")}"
+checkpoint_dir = f"checkpoints_{os.getenv('SLURM_JOB_ID')}"
 history = train_model(
     model,
     criterion,
