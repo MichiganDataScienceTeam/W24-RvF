@@ -61,6 +61,7 @@ def get_loaders(
     preprocessor: Callable[[npt.ArrayLike], torch.Tensor] = preprocess,
     pin_memory: bool = False,
     data_directory: Union[str, Path] = "data/rvf10k",
+    num_workers: int = None,
 ) -> tuple[torch.utils.data.DataLoader, torch.utils.data.DataLoader]:
     """
     Returns the DataLoader objects for the training and validation sets.
@@ -75,18 +76,35 @@ def get_loaders(
     Returns:
         tuple[torch.utils.data.DataLoader, torch.utils.data.DataLoader]: The DataLoader objects for the training and validation sets.
     """
-    train_loader = torch.utils.data.DataLoader(
-        RvFDataset("train", data_directory, preprocessor),
-        batch_size=batch_size,
-        shuffle=True,
-        pin_memory=pin_memory,
-    )
+    if num_workers is not None:
+        train_loader = torch.utils.data.DataLoader(
+            RvFDataset("train", data_directory, preprocessor),
+            batch_size=batch_size,
+            shuffle=True,
+            pin_memory=pin_memory,
+            num_workers=num_workers,
+        )
 
-    val_loader = torch.utils.data.DataLoader(
-        RvFDataset("valid", data_directory, preprocessor),
-        batch_size=batch_size,
-        shuffle=False,
-        pin_memory=pin_memory,
-    )
+        val_loader = torch.utils.data.DataLoader(
+            RvFDataset("valid", data_directory, preprocessor),
+            batch_size=batch_size,
+            shuffle=False,
+            pin_memory=pin_memory,
+            num_workers=num_workers,
+        )
+    else:
+        train_loader = torch.utils.data.DataLoader(
+            RvFDataset("train", data_directory, preprocessor),
+            batch_size=batch_size,
+            shuffle=True,
+            pin_memory=pin_memory,
+        )
+
+        val_loader = torch.utils.data.DataLoader(
+            RvFDataset("valid", data_directory, preprocessor),
+            batch_size=batch_size,
+            shuffle=False,
+            pin_memory=pin_memory,
+        )
 
     return train_loader, val_loader
