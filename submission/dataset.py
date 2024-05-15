@@ -14,7 +14,7 @@ import imageio.v3 as iio
 import cv2
 import torchvision.transforms.v2 as v2
 
-train_dataset = RvFDataset("train", data_directory = "data/rvf5k")
+train_dataset = RvFDataset("train", data_directory = "data/rvf10k")
 
 mean = torch.zeros((3,))
 variance = torch.zeros((3,))
