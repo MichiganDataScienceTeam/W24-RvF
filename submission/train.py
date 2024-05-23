@@ -5,13 +5,14 @@ train.py - Utilities for training and evaluating a model.
 """
 
 from pathlib import Path
-from torch.utils.data import DataLoader
-from tqdm import tqdm
 from typing import Callable, Union
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn
 import torch
+from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 seaborn.set_theme()
@@ -43,18 +44,33 @@ def load_model(
     model: torch.nn.Module,
     checkpoint_dir: Union[str, Path],
     epoch: int,
+    map_location: str = "cpu",
 ):
     """
     Load the model from a file.
 
     Args:
         model (torch.nn.Module): The model to be loaded.
-        checkpoint_dir (Path): The directory to load the model from.
+        checkpoint_dir (Union[str, Path]): The directory to load the model from.
         epoch (int): The epoch number of the model to load.
+        map_location (str, optional): The device to load the model on. Defaults to "cpu".
+
+    Raises:
+        FileNotFoundError: If the specified model file does not exist.
+
+    Returns:
+        None
     """
     checkpoint_dir = Path(checkpoint_dir)
+    model_file = checkpoint_dir / model.__class__.__name__ / f"model_{epoch}.pt"
+
+    if not model_file.exists():
+        raise FileNotFoundError(
+            f"Model at epoch {epoch} in directory {str(model_file.parent())} does not exist."
+        )
+
     model.load_state_dict(
-        torch.load(checkpoint_dir / model.__class__.__name__ / f"model_{epoch}.pt")
+        torch.load(model_file, map_location=torch.device(map_location))
     )
 
 
@@ -79,8 +95,10 @@ def evaluate(
         loss = 0.0
         for X, y in loader:
             outputs = model(X.to(device)).to("cpu")
-            loss += criterion(outputs, y).detach().sum().item()
-            _, predicted = torch.max(outputs.data, 1)  # get predicted digit
+
+            loss += criterion(outputs, y.float()).detach().sum().item()
+            predicted = torch.round(outputs)
+
             total += len(y)
             correct += (predicted == y).sum().item()
     model.train()
@@ -92,9 +110,10 @@ def train_model(
     criterion: Callable,
     optimizer: torch.optim.Optimizer,
     train_loader: DataLoader,
-    test_loader: DataLoader,
+    val_loader: DataLoader,
     epochs: int = 10,
     save_checkpoint: bool = True,
+    checkpoint_dir: Union[Path, str] = "checkpoints",
 ) -> dict[str, list[float]]:
     """
     Train a given model using the specified criterion, optimizer, and data loaders.
@@ -104,72 +123,88 @@ def train_model(
         criterion (Callable): The loss function used for training.
         optimizer (torch.optim.Optimizer): The optimizer used for updating the model's parameters.
         train_loader (DataLoader): The data loader for the training dataset.
-        test_loader (DataLoader): The data loader for the test dataset.
+        val_loader (DataLoader): The data loader for the validation dataset.
         epochs (int, optional): The number of training epochs. Defaults to 10.
 
     Returns:
-        dict[str, list[float]]: A dictionary containing the training and test losses and accuracies.
+        dict[str, list[float]]: A dictionary containing the training and validation losses and accuracies.
     """
     train_losses, train_accuracies = [], []
-    test_losses, test_accuracies = [], []
+    val_losses, val_accuracies = [], []
 
     model = model.to(device)
 
     for epoch in range(epochs):
+        train_correct, num_train_examples = 0, 0
+        total_train_loss = 0.0
         model.train()
 
-        for X, y in tqdm(train_loader):
+        pbar = tqdm(train_loader)
+        for X, y in pbar:
             optimizer.zero_grad()
             outputs = model(X.to(device))
-            loss = criterion(outputs, y.to(device))
+            loss = criterion(outputs, y.float().to(device))
             loss.backward()
             optimizer.step()
 
-        if save_checkpoint:
-            save_model(epoch, model, Path("checkpoints"))
+            predicted_labels = torch.round(outputs)
+            batch_correct = (predicted_labels == y.to(device)).to("cpu").sum().item()
 
-        train_accuracy, train_loss = evaluate(model, criterion, train_loader)
-        train_losses.append(train_loss)
+            num_train_examples += X.shape[0]
+            train_correct += batch_correct
+            total_train_loss += loss.to("cpu").item()
+
+            pbar.update(1)
+            pbar.set_description(
+                f"Batch Accuracy: {batch_correct / X.shape[0]:.2f} , Total Accuracy: {train_correct / num_train_examples:.2f}"
+            )
+
+        if save_checkpoint:
+            save_model(epoch, model, Path(checkpoint_dir))
+
+        train_accuracy = train_correct / num_train_examples
+
+        train_losses.append(total_train_loss / num_train_examples)
         train_accuracies.append(train_accuracy)
 
-        test_accuracy, test_loss = evaluate(model, criterion, test_loader)
-        test_losses.append(test_loss)
-        test_accuracies.append(test_accuracy)
+        val_accuracy, val_loss = evaluate(model, criterion, val_loader)
+        val_losses.append(val_loss)
+        val_accuracies.append(val_accuracy)
 
         print(
-            f"Epoch {epoch + 1}: Loss - (Train {train_loss:.2f}/Test {test_loss:.2f}, "
-            f"Accuracy - (Train {train_accuracy:.2f}/Test {test_accuracy:.2f})"
+            f"Epoch {epoch + 1}: Loss - (Train {total_train_loss:.2f}/Val {val_loss:.2f}), "
+            f"Accuracy - (Train {train_accuracy:.2f}/Val {val_accuracy:.2f})"
         )
 
     return {
         "loss": {
             "train": train_losses,
-            "test": test_losses,
+            "val": val_losses,
         },
         "accuracy": {
             "train": train_accuracies,
-            "test": test_accuracies,
+            "val": val_accuracies,
         },
     }
 
 
 def plot_performance(history: dict[str, dict[str, list[float]]]) -> mpl.figure.Figure:
     """
-    Plots the performance of a model during training and testing.
+    Plots the performance of a model during training and validation.
 
     Args:
         history (dict[str, dict[str, list[float]]]): A dictionary containing the performance history of the model.
             The keys of the dictionary represent the metrics, and the values are dictionaries containing the
-            training and testing values for each metric.
+            training and validation scores for each metric.
 
     Returns:
         mpl.figure.Figure: The matplotlib figure object containing the performance plot.
     """
     fig, axes = plt.subplots(len(history), 1, figsize=(15, 5))
     for i, (metric, values) in enumerate(history.items()):
-        train, test = values["train"], values["test"]
+        train, val = values["train"], values["val"]
         axes[i].plot(train, label="train")
-        axes[i].plot(test, label="test")
+        axes[i].plot(val, label="val")
         axes[i].set_title(f"{metric}")
         axes[i].set_xlabel("Epoch")
         axes[i].set_ylabel(metric)
